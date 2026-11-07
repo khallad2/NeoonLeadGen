@@ -1,0 +1,19 @@
+{
+  "name": "neoon-lead-gen",
+  "version": "1.0.0",
+  "description": "NeoonLeadGen — Local ICP Discovery & Outreach Studio for NeoonAI (YouTube, LinkedIn, Instagram, TikTok, X)",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khallad2/NeoonLeadGen.git"
+  },
+  "scripts": {
+    "start": "node server.js --open",
+    "dev": "node server.js",
+    "test": "node test/verify.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

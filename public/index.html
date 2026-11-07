@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeoonAI — ICP Discovery & Outreach Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =================================================================
+       NEOON AI — ICP DISCOVERY & OUTREACH STUDIO (KHALLADD DESIGN SYSTEM)
+       Matches https://neoonai.com/neoon-studio/ (landing/index.html)
+       ================================================================= */
+    :root {
+      --kh-bg: #07070b;
+      --kh-bg-elev: #0d0d15;
+      --kh-fg: #ededf2;
+      --kh-muted: #8b8b9a;
+      --kh-line: rgba(255, 255, 255, 0.09);
+      --kh-line-strong: rgba(255, 255, 255, 0.16);
+      --kh-a1: #7c5cff;
+      --kh-a2: #22d3ee;
+      --kh-green: #3ee08f;
+      --kh-amber: #f59e0b;
+      --kh-rose: #f43f5e;
+      --kh-card: rgba(255, 255, 255, 0.035);
+      --kh-display: 'Syne', system-ui, sans-serif;
+      --kh-body: 'Inter', system-ui, sans-serif;
+      --kh-mono: 'JetBrains Mono', monospace;
+      --kh-pad: clamp(1.25rem, 4vw, 4.5rem);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: var(--kh-bg);
+      color: var(--kh-fg);
+      font-family: var(--kh-body);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    ::selection {
+      background: var(--kh-a1);
+      color: #ffffff;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ---------- Ambient Glow & Film Grain ---------- */
+    .kh-ambient {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(750px circle at 12% 8%, rgba(124, 92, 255, 0.14), transparent 55%),
+        radial-gradient(650px circle at 88% 16%, rgba(34, 211, 238, 0.11), transparent 55%),
+        radial-gradient(900px circle at 50% 95%, rgba(124, 92, 255, 0.08), transparent 60%);
+    }
+
+    .kh-grain {
+      position: fixed;
+      inset: -50%;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      animation: khGrain 1s steps(6) infinite;
+    }
+
+    @keyframes khGrain {
+      0% { transform: translate(0, 0); }
+      33% { transform: translate(-2%, 1.5%); }
+      66% { transform: translate(1.5%, -2%); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* ---------- Top Navigation ---------- */
+    .kh-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem var(--kh-pad);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: rgba(7, 7, 11, 0.78);
+      border-bottom: 1px solid var(--kh-line);
+    }
+
+    .kh-nav__left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .kh-nav__logo {
+      font-family: var(--kh-display);
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .kh-nav__badge {
+      font-family: var(--kh-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      background: rgba(34, 211, 238, 0.08);
+      color: var(--kh-a2);
+    }
+
+    .kh-nav__right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ---------- Typography & Gradient Accents ---------- */
+    .kh-grad {
+      background: linear-gradient(100deg, var(--kh-a1), var(--kh-a2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .kh-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--kh-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--kh-mono);
+      margin-bottom: 1rem;
+    }
+
+    .kh-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--kh-green);
+      box-shadow: 0 0 12px var(--kh-green);
+      animation: khPulse 2s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes khPulse {
+      50% { opacity: 0.35; }
+    }
+
+    /* ---------- Buttons ---------- */
+    .kh-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: 0.85rem 1.55rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      font-family: var(--kh-body);
+      background: linear-gradient(100deg, var(--kh-a1), var(--kh-a2));
+      color: #07070b;
+      border: none;
+      cursor: pointer;
+      transition: box-shadow 0.35s ease, transform 0.2s ease, opacity 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .kh-btn:hover:not(:disabled) {
+      box-shadow: 0 10px 36px -8px rgba(124, 92, 255, 0.75);
+      transform: translateY(-1px);
+    }
+
+    .kh-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    .kh-btn--ghost {
+      background: rgba(255, 255, 255, 0.025);
+      color: #ffffff;
+      border: 1px solid var(--kh-line);
+      backdrop-filter: blur(8px);
+    }
+
+    .kh-btn--ghost:hover:not(:disabled) {
+      border-color: var(--kh-a2);
+      box-shadow: 0 0 26px -6px rgba(34, 211, 238, 0.45);
+    }
+
+    .kh-btn--sm {
+      padding: 0.46rem 0.92rem;
+      font-size: 0.76rem;
+      border-radius: 999px;
+    }
+
+    .kh-btn--danger:hover:not(:disabled) {
+      border-color: var(--kh-rose);
+      color: var(--kh-rose);
+      box-shadow: 0 0 24px -6px rgba(244, 63, 94, 0.45);
+    }
+
+    /* ---------- Main Container ---------- */
+    .kh-main {
+      position: relative;
+      z-index: 2;
+      padding: 2.5rem var(--kh-pad) 6rem;
+      max-width: 1640px;
+      margin: 0 auto;
+    }
+
+    /* ---------- Hero & Control Deck ---------- */
+    .kh-hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 2.2rem;
+    }
+
+    .kh-title {
+      font-family: var(--kh-display);
+      font-weight: 800;
+      font-size: clamp(2.1rem, 4.2vw, 3.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      color: #ffffff;
+      margin-bottom: 0.85rem;
+    }
+
+    .kh-subtitle {
+      color: #b4b4c4;
+      font-size: 0.96rem;
+      max-width: 62ch;
+    }
+
+    .kh-value-pill {
+      padding: 1.25rem 1.5rem;
+      border-radius: 20px;
+      border: 1px solid var(--kh-line);
+      background: var(--kh-card);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .kh-value-pill__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--kh-mono);
+      font-size: 0.72rem;
+      color: var(--kh-a2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .kh-value-pill p {
+      font-size: 0.86rem;
+      color: #d1d1e0;
+    }
+
+    @media (max-width: 1024px) {
+      .kh-hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---------- Platform Tabs (YouTube, LinkedIn, Instagram, TikTok, X) ---------- */
+    .kh-platform-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kh-platform-tab {
+      position: relative;
+      padding: 1.05rem 1.2rem;
+      border-radius: 18px;
+      border: 1px solid var(--kh-line);
+      background: rgba(255, 255, 255, 0.025);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: all 0.25s ease;
+      text-align: left;
+      color: var(--kh-fg);
+    }
+
+    .kh-platform-tab:hover {
+      border-color: rgba(124, 92, 255, 0.5);
+      background: rgba(124, 92, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .kh-platform-tab.is-active {
+      border-color: var(--kh-a2);
+      background: linear-gradient(135deg, rgba(124, 92, 255, 0.18), rgba(34, 211, 238, 0.1));
+      box-shadow: 0 12px 32px -12px rgba(34, 211, 238, 0.35);
+    }
+
+    .kh-platform-tab__info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .kh-platform-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--kh-line);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .kh-platform-tab.is-active .kh-platform-icon {
+      background: linear-gradient(135deg, var(--kh-a1), var(--kh-a2));
+      color: #07070b;
+      border-color: transparent;
+    }
+
+    .kh-platform-name {
+      font-family: var(--kh-display);
+      font-weight: 700;
+      font-size: 0.98rem;
+      display: block;
+      color: #fff;
+    }
+
+    .kh-platform-sub {
+      font-family: var(--kh-mono);
+      font-size: 0.68rem;
+      color: var(--kh-muted);
+      display: block;
+    }
+
+    .kh-platform-count {
+      font-family: var(--kh-mono);
+      font-size: 0.74rem;
+      padding: 0.22rem 0.58rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--kh-line);
+      color: var(--kh-a2);
+    }
+
+    @media (max-width: 1100px) {
+      .kh-platform-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .kh-platform-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---------- Search & Run Bar ---------- */
+    .kh-control-deck {
+      padding: 1.35rem 1.6rem;
+      border-radius: 22px;
+      border: 1px solid var(--kh-line);
+      background: var(--kh-card);
+      backdrop-filter: blur(14px);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .kh-control-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+      flex: 1;
+    }
+
+    .kh-input, .kh-select {
+      background: rgba(7, 7, 11, 0.85);
+      border: 1px solid var(--kh-line-strong);
+      color: #fff;
+      font-family: var(--kh-body);
+      font-size: 0.86rem;
+      padding: 0.78rem 1.1rem;
+      border-radius: 14px;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .kh-input:focus, .kh-select:focus {
+      border-color: var(--kh-a2);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    }
+
+    .kh-input--grow {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    /* ---------- KPI Stats Bar (Matches .kh-stats in landing/index.html) ---------- */
+    .kh-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--kh-line);
+      border: 1px solid var(--kh-line);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .kh-stat {
+      background: var(--kh-bg);
+      padding: 1.35rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .kh-stat__top {
+      font-family: var(--kh-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--kh-muted);
+    }
+
+    .kh-stat__val {
+      font-family: var(--kh-display);
+      font-size: clamp(1.7rem, 2.5vw, 2.35rem);
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .kh-stat__val span {
+      color: var(--kh-a2);
+      font-size: 0.9rem;
+      font-family: var(--kh-mono);
+      margin-left: 0.35rem;
+    }
+
+    @media (max-width: 900px) {
+      .kh-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ---------- Fancy Modern Table Card ---------- */
+    .kh-table-shell {
+      border-radius: 24px;
+      border: 1px solid var(--kh-line);
+      background: rgba(13, 13, 21, 0.72);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+      box-shadow: 0 25px 70px -20px rgba(0, 0, 0, 0.75);
+    }
+
+    .kh-table-toolbar {
+      padding: 1.15rem 1.5rem;
+      border-bottom: 1px solid var(--kh-line);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.018);
+    }
+
+    .kh-view-pills {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--kh-line);
+      background: rgba(7, 7, 11, 0.8);
+    }
+
+    .kh-view-pill {
+      border: none;
+      background: transparent;
+      color: var(--kh-muted);
+      font-family: var(--kh-mono);
+      font-size: 0.74rem;
+      padding: 0.42rem 0.95rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .kh-view-pill.is-active {
+      background: linear-gradient(100deg, var(--kh-a1), var(--kh-a2));
+      color: #07070b;
+      font-weight: 600;
+    }
+
+    .kh-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table.kh-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .kh-table th {
+      font-family: var(--kh-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--kh-muted);
+      padding: 1rem 1.15rem;
+      border-bottom: 1px solid var(--kh-line);
+      background: rgba(7, 7, 11, 0.55);
+      white-space: nowrap;
+    }
+
+    .kh-table td {
+      padding: 1.15rem;
+      border-bottom: 1px solid var(--kh-line);
+      vertical-align: top;
+      transition: background 0.2s ease;
+    }
+
+    .kh-table tbody tr {
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .kh-table tbody tr:hover {
+      background: rgba(124, 92, 255, 0.055);
+    }
+
+    .kh-row-idx {
+      font-family: var(--kh-mono);
+      font-size: 0.78rem;
+      color: var(--kh-a2);
+      font-weight: 600;
+    }
+
+    /* Client Profile Cell */
+    .kh-client {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      min-width: 230px;
+    }
+
+    .kh-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(124, 92, 255, 0.3), rgba(34, 211, 238, 0.25));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--kh-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .kh-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .kh-client__name {
+      font-family: var(--kh-display);
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .kh-client__name:hover {
+      color: var(--kh-a2);
+    }
+
+    .kh-client__handle {
+      font-family: var(--kh-mono);
+      font-size: 0.75rem;
+      color: var(--kh-muted);
+      display: block;
+      margin-top: 0.1rem;
+    }
+
+    .kh-link-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .kh-link-pill {
+      font-family: var(--kh-mono);
+      font-size: 0.66rem;
+      padding: 0.16rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid var(--kh-line);
+      background: rgba(255, 255, 255, 0.03);
+      color: #d0d0e0;
+      transition: all 0.2s ease;
+    }
+
+    .kh-link-pill:hover {
+      border-color: var(--kh-a2);
+      color: var(--kh-a2);
+    }
+
+    /* ICP Badge & Score */
+    .kh-tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--kh-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.28rem 0.68rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .kh-tier-badge--icp1 {
+      background: rgba(124, 92, 255, 0.16);
+      border: 1px solid rgba(124, 92, 255, 0.45);
+      color: #c4b5fd;
+    }
+
+    .kh-tier-badge--icp2 {
+      background: rgba(34, 211, 238, 0.14);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      color: #67e8f9;
+    }
+
+    .kh-tier-badge--icp3 {
+      background: rgba(62, 224, 143, 0.14);
+      border: 1px solid rgba(62, 224, 143, 0.45);
+      color: #6ee7b7;
+    }
+
+    .kh-score-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: var(--kh-mono);
+      font-size: 0.74rem;
+      color: #fff;
+    }
+
+    .kh-score-bar {
+      width: 68px;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .kh-score-bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--kh-a1), var(--kh-a2));
+      border-radius: 99px;
+    }
+
+    /* Metrics & Content Cell */
+    .kh-subs-pill {
+      display: inline-block;
+      font-family: var(--kh-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--kh-a2);
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      padding: 0.2rem 0.6rem;
+      border-radius: 8px;
+      margin-bottom: 0.45rem;
+    }
+
+    .kh-recent-title {
+      font-size: 0.85rem;
+      color: #ededf2;
+      font-weight: 500;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      max-width: 280px;
+    }
+
+    .kh-niche-tag {
+      font-family: var(--kh-mono);
+      font-size: 0.68rem;
+      color: var(--kh-muted);
+      margin-top: 0.3rem;
+      display: block;
+    }
+
+    /* Buying Signal & Gap Cell */
+    .kh-signal-box {
+      max-width: 310px;
+      font-size: 0.82rem;
+      color: #d4d4e4;
+    }
+
+    .kh-signal-box strong {
+      display: block;
+      font-family: var(--kh-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--kh-green);
+      margin-bottom: 0.22rem;
+    }
+
+    .kh-gap-text {
+      margin-top: 0.4rem;
+      font-size: 0.76rem;
+      color: var(--kh-muted);
+    }
+
+    /* Status Select */
+    .kh-status-select {
+      font-family: var(--kh-mono);
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 0.42rem 0.7rem;
+      border-radius: 10px;
+      border: 1px solid var(--kh-line-strong);
+      background: rgba(7, 7, 11, 0.9);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .kh-status-select[data-status="New"] { border-color: rgba(34, 211, 238, 0.45); color: var(--kh-a2); }
+    .kh-status-select[data-status="Contacted"] { border-color: rgba(124, 92, 255, 0.55); color: #c4b5fd; }
+    .kh-status-select[data-status="Replied"] { border-color: rgba(245, 158, 11, 0.55); color: #fcd34d; }
+    .kh-status-select[data-status="Booked"] { border-color: rgba(62, 224, 143, 0.65); color: var(--kh-green); }
+
+    /* ---------- Slide-Over Outreach Pitch Studio Modal ---------- */
+    .kh-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(7, 7, 11, 0.78);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: flex-end;
+    }
+
+    .kh-modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .kh-drawer {
+      width: min(620px, 95vw);
+      height: 100vh;
+      background: #0b0b12;
+      border-left: 1px solid var(--kh-line-strong);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      overflow-y: auto;
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .kh-drawer__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--kh-line);
+    }
+
+    .kh-drawer__tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .kh-textarea {
+      width: 100%;
+      min-height: 240px;
+      background: rgba(7, 7, 11, 0.9);
+      border: 1px solid var(--kh-line-strong);
+      border-radius: 16px;
+      padding: 1.1rem;
+      color: #ededf2;
+      font-family: var(--kh-body);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    .kh-textarea:focus {
+      border-color: var(--kh-a2);
+    }
+
+    /* Toast Notification */
+    .kh-toast {
+      position: fixed;
+      bottom: 1.8rem;
+      right: 1.8rem;
+      z-index: 200;
+      padding: 0.85rem 1.35rem;
+      border-radius: 14px;
+      background: rgba(13, 13, 21, 0.95);
+      border: 1px solid var(--kh-a2);
+      color: #fff;
+      font-family: var(--kh-mono);
+      font-size: 0.8rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.65);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .kh-toast.is-visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .kh-empty {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--kh-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="kh-ambient"></div>
+  <div class="kh-grain"></div>
+
+  <!-- Top Navigation -->
+  <header class="kh-nav">
+    <div class="kh-nav__left">
+      <a href="https://neoonai.com/neoon-studio/" target="_blank" class="kh-nav__logo">
+        <span>NEOON<span class="kh-grad">AI</span></span>
+      </a>
+      <span class="kh-nav__badge">ICP OUTREACH ENGINE // 10 PER RUN</span>
+    </div>
+    <div class="kh-nav__right">
+      <a href="https://neoonai.com/neoon-studio/" target="_blank" class="kh-btn kh-btn--ghost kh-btn--sm">
+        Neoon Studio Pipeline ↗
+      </a>
+      <button id="btnExportCsv" class="kh-btn kh-btn--ghost kh-btn--sm" title="Export current table view to CSV">
+        Export CSV ↓
+      </button>
+      <button id="btnExportVault" class="kh-btn kh-btn--ghost kh-btn--sm" title="Download Vault JSON to share with your colleague">
+        Sync Vault ↓
+      </button>
+      <button id="btnImportVault" class="kh-btn kh-btn--ghost kh-btn--sm" title="Merge a colleague's Vault JSON so you never pitch the same client">
+        Merge Vault ↑
+      </button>
+      <input type="file" id="inputVaultFile" accept=".json,application/json" style="display:none;" />
+      <button id="btnResetPlatform" class="kh-btn kh-btn--ghost kh-btn--sm kh-btn--danger" title="Clear seen history for active platform">
+        Reset Platform Vault
+      </button>
+    </div>
+  </header>
+
+  <main class="kh-main">
+    <!-- Hero Header -->
+    <section class="kh-hero-grid">
+      <div>
+        <div class="kh-eyebrow">
+          <span class="kh-dot"></span>
+          <span>01 / VOICE-NOTE-TO-VIDEO PIPELINE • $1,500–$2,500/MO RETAINER ICPs</span>
+        </div>
+        <h1 class="kh-title">
+          IDEAL CUSTOMER <span class="kh-grad">DISCOVERY STUDIO.</span>
+        </h1>
+        <p class="kh-subtitle">
+          Finds <strong>10 net-new, qualified ICPs every run</strong> across YouTube, LinkedIn, Instagram, TikTok, and X based on <code>icp.md</code>. Strictly deduplicated per platform so you never pitch the same client twice.
+        </p>
+      </div>
+
+      <div class="kh-value-pill">
+        <div class="kh-value-pill__top">
+          <span>ACTIVE ICP FILTER RULES (ICP.MD)</span>
+          <span>24H GOOGLE DRIVE PIPELINE</span>
+        </div>
+        <p>
+          <strong>Target:</strong> Stretched DevRel Teams (ICP 1), Silent Tech Founders $10k+ MRR (ICP 2), &amp; Technical Educators 10k–50k Subs (ICP 3).<br />
+          <strong>Disqualified:</strong> Vloggers, Lifestyle Creators, &amp; Physical E-Commerce.
+        </p>
+      </div>
+    </section>
+
+    <!-- Platform Selector Bar -->
+    <section class="kh-platform-bar" id="platformTabs">
+      <button class="kh-platform-tab is-active" data-platform="youtube">
+        <div class="kh-platform-tab__info">
+          <div class="kh-platform-icon">▶</div>
+          <div>
+            <span class="kh-platform-name">YouTube</span>
+            <span class="kh-platform-sub">10k–50k Tech &amp; DevRel</span>
+          </div>
+        </div>
+        <span class="kh-platform-count" id="count-youtube">0</span>
+      </button>
+
+      <button class="kh-platform-tab" data-platform="linkedin">
+        <div class="kh-platform-tab__info">
+          <div class="kh-platform-icon">in</div>
+          <div>
+            <span class="kh-platform-name">LinkedIn</span>
+            <span class="kh-platform-sub">Funded B2B &amp; DevRel</span>
+          </div>
+        </div>
+        <span class="kh-platform-count" id="count-linkedin">0</span>
+      </button>
+
+      <button class="kh-platform-tab" data-platform="instagram">
+        <div class="kh-platform-tab__info">
+          <div class="kh-platform-icon">◎</div>
+          <div>
+            <span class="kh-platform-name">Instagram</span>
+            <span class="kh-platform-sub">Code Educators &amp; Reels</span>
+          </div>
+        </div>
+        <span class="kh-platform-count" id="count-instagram">0</span>
+      </button>
+
+      <button class="kh-platform-tab" data-platform="tiktok">
+        <div class="kh-platform-tab__info">
+          <div class="kh-platform-icon">♪</div>
+          <div>
+            <span class="kh-platform-name">TikTok</span>
+            <span class="kh-platform-sub">Tech &amp; SaaS Creators</span>
+          </div>
+        </div>
+        <span class="kh-platform-count" id="count-tiktok">0</span>
+      </button>
+
+      <button class="kh-platform-tab" data-platform="x">
+        <div class="kh-platform-tab__info">
+          <div class="kh-platform-icon">𝕏</div>
+          <div>
+            <span class="kh-platform-name">X (Twitter)</span>
+            <span class="kh-platform-sub">#buildinpublic &amp; Threads</span>
+          </div>
+        </div>
+        <span class="kh-platform-count" id="count-x">0</span>
+      </button>
+    </section>
+
+    <!-- Discovery Action & Filter Bar -->
+    <section class="kh-control-deck">
+      <div class="kh-control-group">
+        <select id="selectIcpTier" class="kh-select" aria-label="Filter by ICP Persona">
+          <option value="all">All ICP Personas (ICP 1 + 2 + 3)</option>
+          <option value="icp1">ICP 1: Stretched DevRel Team (B2B Tech/API)</option>
+          <option value="icp2">ICP 2: Silent Tech Founder ($10k+ MRR / #buildinpublic)</option>
+          <option value="icp3">ICP 3: High-Ticket Tech Educator (10k–50k Subs)</option>
+        </select>
+
+        <input
+          type="text"
+          id="inputCustomQuery"
+          class="kh-input kh-input--grow"
+          placeholder="Optional niche focus (e.g. system design, kubernetes, nextjs saas, ai agents)..."
+        />
+      </div>
+
+      <button id="btnDiscover" class="kh-btn">
+        <span id="btnDiscoverLabel">⚡ Get 10 New ICPs on YouTube</span>
+      </button>
+    </section>
+
+    <!-- Stats Strip -->
+    <section class="kh-stats">
+      <div class="kh-stat">
+        <span class="kh-stat__top">CURRENT DISPLAYED LEADS</span>
+        <div class="kh-stat__val" id="statDisplayed">0 <span>ICPs</span></div>
+      </div>
+      <div class="kh-stat">
+        <span class="kh-stat__top">PLATFORM DEDUPLICATION VAULT</span>
+        <div class="kh-stat__val" id="statPlatformSeen">0 <span>unique clients</span></div>
+      </div>
+      <div class="kh-stat">
+        <span class="kh-stat__top">TOTAL MULTI-PLATFORM VAULT</span>
+        <div class="kh-stat__val" id="statTotalVault">0 <span>saved leads</span></div>
+      </div>
+      <div class="kh-stat">
+        <span class="kh-stat__top">OUTREACH PIPELINE ACTIVE</span>
+        <div class="kh-stat__val" id="statOutreachActive">0 <span>contacted / booked</span></div>
+      </div>
+    </section>
+
+    <!-- Fancy Modern ICP Table -->
+    <section class="kh-table-shell">
+      <div class="kh-table-toolbar">
+        <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+          <div class="kh-view-pills" id="viewModePills">
+            <button class="kh-view-pill is-active" data-view="latest">Latest Run (10)</button>
+            <button class="kh-view-pill" data-view="platform">All Platform Leads</button>
+            <button class="kh-view-pill" data-view="all">All Platforms Vault</button>
+          </div>
+          <span id="runMetaBadge" style="font-family: var(--kh-mono); font-size: 0.74rem; color: var(--kh-muted);"></span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+          <input
+            type="text"
+            id="inputTableSearch"
+            class="kh-input"
+            style="padding: 0.52rem 0.9rem; font-size: 0.8rem; min-width: 220px;"
+            placeholder="Filter table by name, @handle, signal..."
+          />
+          <select id="selectStatusFilter" class="kh-select" style="padding: 0.52rem 0.85rem; font-size: 0.8rem;">
+            <option value="all">All Statuses</option>
+            <option value="New">Status: New</option>
+            <option value="Contacted">Status: Contacted</option>
+            <option value="Replied">Status: Replied</option>
+            <option value="Booked">Status: Booked</option>
+            <option value="Disqualified">Status: Disqualified</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="kh-table-wrap">
+        <table class="kh-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Client / Profile</th>
+              <th>ICP Persona &amp; Fit</th>
+              <th>Audience &amp; Recent Content</th>
+              <th>Buying Signal &amp; Video Bottleneck</th>
+              <th>Approach / Personalized Pitch</th>
+              <th>Outreach Status</th>
+            </tr>
+          </thead>
+          <tbody id="icpTableBody">
+            <tr>
+              <td colspan="7" class="kh-empty">Loading ICP Studio...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Slide-Over Pitch Studio Modal -->
+  <div class="kh-modal-backdrop" id="pitchModal">
+    <div class="kh-drawer">
+      <div class="kh-drawer__head">
+        <div>
+          <div class="kh-eyebrow" style="margin-bottom: 0.35rem;">
+            <span class="kh-dot"></span>
+            <span id="modalLeadPlatform">YOUTUBE ICP OUTREACH</span>
+          </div>
+          <h2 id="modalLeadName" style="font-family: var(--kh-display); font-size: 1.55rem; color: #fff;">Client Name</h2>
+          <p id="modalLeadSub" style="font-family: var(--kh-mono); font-size: 0.76rem; color: var(--kh-a2); margin-top: 0.2rem;"></p>
+        </div>
+        <button id="btnCloseModal" class="kh-btn kh-btn--ghost kh-btn--sm">✕ Close</button>
+      </div>
+
+      <div class="kh-drawer__tabs" id="pitchTypeTabs">
+        <button class="kh-btn kh-btn--ghost kh-btn--sm is-active" data-pitch="dm">Short DM (X / LI / IG)</button>
+        <button class="kh-btn kh-btn--ghost kh-btn--sm" data-pitch="email">Cold Email (Full)</button>
+        <button class="kh-btn kh-btn--ghost kh-btn--sm" data-pitch="arabicDm">Arabic Pitch (عربي)</button>
+      </div>
+
+      <div>
+        <label style="display: block; font-family: var(--kh-mono); font-size: 0.7rem; color: var(--kh-muted); margin-bottom: 0.4rem;">
+          PERSONALIZED PITCH FOR NEOON STUDIO (EDITABLE)
+        </label>
+        <textarea id="modalPitchTextarea" class="kh-textarea"></textarea>
+      </div>
+
+      <div>
+        <label style="display: block; font-family: var(--kh-mono); font-size: 0.7rem; color: var(--kh-muted); margin-bottom: 0.4rem;">
+          CRM NOTES &amp; FOLLOW-UP LOG
+        </label>
+        <input type="text" id="modalNotesInput" class="kh-input" style="width: 100%;" placeholder="Add notes (e.g. Sent DM on LinkedIn, offered 30s sample)..." />
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--kh-line);">
+        <button id="btnCopyModalPitch" class="kh-btn">📋 Copy Pitch &amp; Mark Contacted</button>
+        <a id="btnOpenProfileModal" href="#" target="_blank" class="kh-btn kh-btn--ghost">Open Client Profile ↗</a>
+        <button id="btnSaveModalNotes" class="kh-btn kh-btn--ghost kh-btn--sm" style="margin-left: auto;">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="kh-toast" id="toastBox">Copied to clipboard!</div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Node & OS
+node_modules/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# Local runtime deduplication vault (keep clean for colleagues cloning the repo)
+data/icp_vault.json
+data/*.tmp
+data/test_vault.json
+!data/.gitkeep
