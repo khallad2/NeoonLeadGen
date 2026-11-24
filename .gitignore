@@ -11,5 +11,5 @@ data/test_vault.json
 !data/.gitkeep
 
 # Packaged builds
-dist/
 .build-cache/
+dist/.build/
