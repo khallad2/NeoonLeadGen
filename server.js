@@ -1,13 +1,14 @@
 const http = require('http');
-const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { isPackaged, readPublicAsset, openBrowser } = require('./src/runtime');
 const { ICPVault, SUPPORTED_PLATFORMS } = require('./src/vault');
 const { discoverYouTubeICPs } = require('./src/scrapers/youtube');
 const { discoverSocialICPs } = require('./src/scrapers/socialPlatforms');
 
 const BASE_PORT = Number(process.env.PORT) || 3030;
-const PUBLIC_DIR = path.join(__dirname, 'public');
+// Loopback only: keeps leads private and avoids the Windows Firewall "Allow access?" prompt.
+const HOST = '127.0.0.1';
+const APP_ID = 'neoon-lead-gen';
 const vault = new ICPVault();
 
 const MIME_TYPES = {
@@ -47,19 +48,13 @@ function readJsonBody(req) {
   });
 }
 
-function openInChrome(url) {
-  const platform = process.platform;
-  if (platform === 'darwin') {
-    exec(`open -a "Google Chrome" "${url}" || open "${url}"`);
-  } else if (platform === 'win32') {
-    exec(`start chrome "${url}" || start "" "${url}"`);
-  } else {
-    exec(`google-chrome "${url}" || chromium "${url}" || xdg-open "${url}"`);
-  }
-}
-
 async function handleApi(req, res, parsedUrl) {
   const pathname = parsedUrl.pathname;
+
+  // GET /api/health -> used by a second launch to detect an already-running instance
+  if (req.method === 'GET' && pathname === '/api/health') {
+    return sendJson(res, 200, { ok: true, app: APP_ID });
+  }
 
   // GET /api/leads
   if (req.method === 'GET' && pathname === '/api/leads') {
@@ -178,48 +173,84 @@ const server = http.createServer(async (req, res) => {
       return await handleApi(req, res, parsedUrl);
     }
 
-    let filePath = parsedUrl.pathname === '/' ? '/index.html' : parsedUrl.pathname;
-    const safePath = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
-    const fullPath = path.join(PUBLIC_DIR, safePath);
-
-    if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
-      const ext = path.extname(fullPath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
-      fs.createReadStream(fullPath).pipe(res);
-    } else {
-      const indexFile = path.join(PUBLIC_DIR, 'index.html');
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(indexFile).pipe(res);
+    const requested = parsedUrl.pathname === '/' ? 'index.html' : decodeURIComponent(parsedUrl.pathname);
+    let body = readPublicAsset(requested);
+    let ext = path.extname(requested).toLowerCase();
+    if (!body) {
+      body = readPublicAsset('index.html'); // SPA fallback
+      ext = '.html';
     }
+    res.writeHead(200, {
+      'Content-Type': MIME_TYPES[ext] || 'application/octet-stream',
+      'Cache-Control': 'no-cache'
+    });
+    res.end(body);
   } catch (err) {
     console.error('[Server Error]', err);
-    sendJson(res, 500, { ok: false, error: err.message || 'Internal Server Error' });
+    if (res.headersSent) return res.end();
+    const status = /Invalid JSON|Invalid vault/.test(err.message || '') ? 400 : 500;
+    sendJson(res, status, { ok: false, error: err.message || 'Internal Server Error' });
   }
 });
 
-function startWithFallback(port, maxAttempts = 10) {
-  const onError = (err) => {
-    if (err.code === 'EADDRINUSE' && maxAttempts > 1) {
+/** Returns true if a NeoonLeadGen instance is already answering on this port. */
+async function isOurInstance(port) {
+  try {
+    const res = await fetch(`http://${HOST}:${port}/api/health`, { signal: AbortSignal.timeout(1500) });
+    const data = await res.json();
+    return data && data.app === APP_ID;
+  } catch (_) {
+    return false;
+  }
+}
+
+function printBanner(url) {
+  console.log('');
+  console.log('  NeoonLeadGen - ICP Discovery & Outreach Studio');
+  console.log('  ----------------------------------------------');
+  console.log(`  Running at:  ${url}`);
+  console.log(`  Lead vault:  ${vault.vaultPath}`);
+  console.log('');
+  if (isPackaged()) {
+    console.log('  Keep this window open while you use the app.');
+    console.log('  Close this window (or press Ctrl+C) to stop NeoonLeadGen.');
+    console.log('');
+  }
+}
+
+function start({ open = false, port = BASE_PORT, maxAttempts = 10 } = {}) {
+  const tryPort = async (p, attemptsLeft) => {
+    // Never run two servers on one vault file — reuse the running instance instead.
+    if (await isOurInstance(p)) {
+      const url = `http://localhost:${p}`;
+      console.log(`\n  NeoonLeadGen is already running at ${url} - opening it.`);
+      if (open) await openBrowser(url);
+      if (isPackaged()) setTimeout(() => process.exit(0), 1500);
+      return;
+    }
+    const onError = (err) => {
+      if (err.code === 'EADDRINUSE' && attemptsLeft > 1) {
+        tryPort(p + 1, attemptsLeft - 1);
+      } else {
+        console.error('[Server Failed to Start]', err.message);
+        process.exitCode = 1;
+      }
+    };
+    server.once('error', onError);
+    server.listen(p, HOST, () => {
       server.removeListener('error', onError);
-      startWithFallback(port + 1, maxAttempts - 1);
-    } else {
-      console.error('[Server Failed to Start]', err.message);
-      process.exit(1);
-    }
+      const url = `http://localhost:${p}`;
+      printBanner(url);
+      if (open) openBrowser(url);
+    });
   };
-  server.once('error', onError);
-  server.listen(port, () => {
-    server.removeListener('error', onError);
-    const url = `http://localhost:${port}`;
-    console.log(`\n⚡ NeoonLeadGen — ICP Discovery Studio running at ${url}`);
-    if (process.argv.includes('--open')) {
-      openInChrome(url);
-    }
-  });
+  tryPort(port, maxAttempts);
 }
 
-if (require.main === module) {
-  startWithFallback(BASE_PORT);
+if (require.main === module || isPackaged()) {
+  if (isPackaged()) process.title = 'NeoonLeadGen';
+  const wantsOpen = isPackaged() || process.argv.includes('--open');
+  start({ open: wantsOpen && !process.argv.includes('--no-open') });
 }
 
-module.exports = { server, vault };
+module.exports = { server, vault, start };

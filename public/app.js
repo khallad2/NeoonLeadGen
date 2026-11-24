@@ -49,6 +49,7 @@
   const btnCloseModal = document.getElementById('btnCloseModal');
   const pitchTypeTabs = document.getElementById('pitchTypeTabs');
   const btnCopyModalPitch = document.getElementById('btnCopyModalPitch');
+  const btnSendModalPitch = document.getElementById('btnSendModalPitch');
   const btnOpenProfileModal = document.getElementById('btnOpenProfileModal');
   const btnSaveModalNotes = document.getElementById('btnSaveModalNotes');
   const toastBox = document.getElementById('toastBox');
@@ -429,7 +430,7 @@
       const lead = state.allLeads.find((l) => l.id === copyBtn.dataset.id);
       if (lead) {
         const text = lead.customPitch || lead.pitches?.dm || '';
-        await navigator.clipboard.writeText(text);
+        await copyText(text);
         showToast(`📋 Copied personalized DM for ${lead.name}!`);
       }
     }
@@ -462,16 +463,51 @@
     }
   });
 
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {
+      // Fallback for browsers/contexts where the async Clipboard API is blocked
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    }
+  }
+
+  async function markModalLeadContacted(text) {
+    const lead = state.activeModalLead;
+    const patch = {
+      customPitch: state.activePitchType === 'dm' ? text : lead.customPitch,
+      notes: modalNotesInput.value
+    };
+    // Never downgrade a lead that already replied / booked a call
+    if (!lead.status || lead.status === 'New') patch.status = 'Contacted';
+    await updateLeadOnServer(lead.id, patch);
+  }
+
   btnCopyModalPitch.addEventListener('click', async () => {
     if (!state.activeModalLead) return;
     const text = modalPitchTextarea.value;
-    await navigator.clipboard.writeText(text);
-    await updateLeadOnServer(state.activeModalLead.id, {
-      status: 'Contacted',
-      customPitch: state.activePitchType === 'dm' ? text : state.activeModalLead.customPitch,
-      notes: modalNotesInput.value
-    });
+    await copyText(text);
+    await markModalLeadContacted(text);
     showToast(`📋 Pitch copied & ${state.activeModalLead.name} marked as Contacted!`);
+  });
+
+  btnSendModalPitch.addEventListener('click', async () => {
+    const lead = state.activeModalLead;
+    if (!lead) return;
+    const text = modalPitchTextarea.value;
+    await copyText(text); // copy first, while this tab still has focus
+    window.open(lead.profileUrl, '_blank', 'noopener');
+    await markModalLeadContacted(text);
+    showToast(`🚀 Pitch copied — paste it (Ctrl+V) into ${lead.name}'s DMs. Marked as Contacted.`);
   });
 
   btnSaveModalNotes.addEventListener('click', async () => {
@@ -527,7 +563,8 @@
       )
     ];
 
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    // UTF-8 BOM + CRLF so Excel on Windows opens Arabic/emoji text correctly
+    const blob = new Blob(['\uFEFF' + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

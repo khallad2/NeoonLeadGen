@@ -1,0 +1,44 @@
+NeoonLeadGen - ICP Discovery & Outreach Studio (Windows)
+=========================================================
+
+Nothing to install. No Node.js, no API keys.
+
+1) START
+   - Extract this ZIP first (right-click the .zip > "Extract All..."),
+     then double-click NeoonLeadGen.exe.
+   - The first time, Windows SmartScreen may say "Windows protected your PC"
+     (the app is not code-signed). Click "More info" > "Run anyway".
+   - A black window opens and Chrome (or your default browser) opens
+     http://localhost:3030 automatically.
+   - KEEP THE BLACK WINDOW OPEN while you work. Closing it stops the app.
+   - Double-clicking the .exe again just re-opens the running app.
+
+2) GENERATE LEADS
+   - Pick a platform tab (YouTube, LinkedIn, Instagram, TikTok, X).
+   - Optionally choose an ICP persona and type a niche keyword
+     (e.g. "kubernetes", "nextjs saas", "ai agents").
+   - Click "Get 10 New ICPs". Every run returns 10 clients you have never
+     seen before on that platform.
+
+3) CONTACT LEADS
+   - Click "Pitch Studio" on a lead.
+   - Choose Short DM, Cold Email, or Arabic Pitch, and edit the text.
+   - Click "Copy & Open Profile to Send": the pitch is copied, the client's
+     profile opens in a new tab - press Ctrl+V in their DMs and send.
+     The lead is automatically marked "Contacted".
+   - Update the status as they reply (Replied / Booked Call) and keep notes.
+   - "Export CSV" opens cleanly in Excel (Arabic text included).
+
+4) YOUR DATA
+   - Leads, statuses and notes are saved automatically to:
+       %APPDATA%\NeoonLeadGen\data\icp_vault.json
+     (paste that into the Explorer address bar to open it).
+   - Updating the app = replace NeoonLeadGen.exe. Your leads stay.
+   - Working with a teammate? Use "Sync Vault" (export) and
+     "Merge Vault" (import) so you never pitch the same client twice.
+
+TROUBLESHOOTING
+   - Browser didn't open: open http://localhost:3030 manually
+     (the black window shows the exact address).
+   - Antivirus quarantined the .exe: restore it / add an exception -
+     it's an unsigned app built from the open-source NeoonLeadGen repo.

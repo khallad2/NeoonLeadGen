@@ -1,7 +1,7 @@
 {
   "name": "neoon-lead-gen",
-  "version": "1.0.0",
-  "description": "NeoonLeadGen — Local ICP Discovery & Outreach Studio for NeoonAI (YouTube, LinkedIn, Instagram, TikTok, X)",
+  "version": "1.1.0",
+  "description": "NeoonLeadGen \u2014 Local ICP Discovery & Outreach Studio for NeoonAI (YouTube, LinkedIn, Instagram, TikTok, X)",
   "main": "server.js",
   "repository": {
     "type": "git",
@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node server.js --open",
     "dev": "node server.js",
-    "test": "node test/verify.js"
+    "test": "node test/verify.js",
+    "build:win": "node scripts/build-windows.js",
+    "build:host": "node scripts/build-windows.js --host"
   },
   "engines": {
     "node": ">=18.0.0"

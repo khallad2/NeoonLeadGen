@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DEFAULT_VAULT_PATH = path.join(__dirname, '..', 'data', 'icp_vault.json');
+const { resolveDataDir } = require('./runtime');
+
+const DEFAULT_VAULT_PATH = path.join(resolveDataDir(), 'icp_vault.json');
 const SUPPORTED_PLATFORMS = ['youtube', 'linkedin', 'instagram', 'tiktok', 'x'];
 
 function createEmptyVault() {
@@ -25,6 +27,22 @@ class ICPVault {
   constructor(vaultPath = DEFAULT_VAULT_PATH) {
     this.vaultPath = vaultPath;
     this.data = this._load();
+    this._seenSets = new Map(); // platform -> Set<canonicalKey> (O(1) dedup lookups)
+  }
+
+  /** Lazily builds (and caches) the per-platform seen-key Set. */
+  _seenSet(platform) {
+    let set = this._seenSets.get(platform);
+    if (!set) {
+      set = new Set(this.data.seenByPlatform[platform] || []);
+      this._seenSets.set(platform, set);
+    }
+    return set;
+  }
+
+  /** Syncs a mutated seen Set back into the persisted array form. */
+  _commitSeen(platform) {
+    this.data.seenByPlatform[platform] = Array.from(this._seenSet(platform));
   }
 
   _load() {
@@ -54,8 +72,25 @@ class ICPVault {
       fs.mkdirSync(dir, { recursive: true });
     }
     const tmpPath = `${this.vaultPath}.tmp`;
-    fs.writeFileSync(tmpPath, JSON.stringify(this.data, null, 2), 'utf8');
-    fs.renameSync(tmpPath, this.vaultPath);
+    const json = JSON.stringify(this.data, null, 2);
+    fs.writeFileSync(tmpPath, json, 'utf8');
+    // On Windows, antivirus / OneDrive / indexers can briefly lock the target file,
+    // making rename fail with EPERM/EBUSY/EACCES. Retry briefly, then fall back to a direct write.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        fs.renameSync(tmpPath, this.vaultPath);
+        return;
+      } catch (err) {
+        if (!['EPERM', 'EBUSY', 'EACCES'].includes(err.code)) throw err;
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 40 * (attempt + 1));
+      }
+    }
+    fs.writeFileSync(this.vaultPath, json, 'utf8');
+    try {
+      fs.unlinkSync(tmpPath);
+    } catch (_) {
+      /* ignore */
+    }
   }
 
   /**
@@ -101,8 +136,7 @@ class ICPVault {
    */
   hasSeen(platform, candidate) {
     const p = String(platform || '').toLowerCase().trim();
-    const seenList = this.data.seenByPlatform[p] || [];
-    const seenSet = new Set(seenList);
+    const seenSet = this._seenSet(p);
     const candidateKeys = this.getCanonicalKeys(p, candidate);
     if (candidateKeys.length === 0) return false;
     return candidateKeys.some((k) => seenSet.has(k));
@@ -113,10 +147,7 @@ class ICPVault {
    */
   recordBatch(platform, leads, queryInfo = '') {
     const p = String(platform || '').toLowerCase().trim();
-    if (!this.data.seenByPlatform[p]) {
-      this.data.seenByPlatform[p] = [];
-    }
-    const seenSet = new Set(this.data.seenByPlatform[p]);
+    const seenSet = this._seenSet(p);
     const runId = `run_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
     const timestamp = new Date().toISOString();
 
@@ -158,7 +189,7 @@ class ICPVault {
       storedLeads.push(record);
     }
 
-    this.data.seenByPlatform[p] = Array.from(seenSet);
+    this._commitSeen(p);
     this.data.runs.unshift({
       runId,
       platform: p,
@@ -226,6 +257,7 @@ class ICPVault {
   }
 
   resetPlatform(platform) {
+    this._seenSets.clear();
     if (platform === 'all') {
       this.data = createEmptyVault();
     } else {
@@ -257,35 +289,41 @@ class ICPVault {
     // 1. Merge seenByPlatform keys
     if (incoming.seenByPlatform && typeof incoming.seenByPlatform === 'object') {
       for (const p of SUPPORTED_PLATFORMS) {
-        const currentSet = new Set(this.data.seenByPlatform[p] || []);
         const incomingKeys = Array.isArray(incoming.seenByPlatform[p]) ? incoming.seenByPlatform[p] : [];
-        incomingKeys.forEach((k) => currentSet.add(k));
-        this.data.seenByPlatform[p] = Array.from(currentSet);
+        const set = this._seenSet(p);
+        for (const k of incomingKeys) set.add(k);
       }
     }
 
-    // 2. Merge leads (skip if already present on the same platform, or upgrade status if colleague contacted them)
+    // 2. Index existing leads by canonical key -> lead (O(N) instead of O(N^2) nested scans)
+    const leadByKey = new Map();
+    for (const existing of this.data.leads) {
+      for (const k of this.getCanonicalKeys(existing.platform, existing)) {
+        if (!leadByKey.has(k)) leadByKey.set(k, existing);
+      }
+    }
+
+    // 3. Merge leads (skip if already present on the same platform, or upgrade status if colleague contacted them)
     const incomingLeads = Array.isArray(incoming.leads) ? incoming.leads : [];
     for (const lead of incomingLeads) {
+      if (!lead || typeof lead !== 'object') continue;
       const p = String(lead.platform || 'youtube').toLowerCase().trim();
       if (!SUPPORTED_PLATFORMS.includes(p)) continue;
 
       const candidateKeys = this.getCanonicalKeys(p, lead);
-      const existingIdx = this.data.leads.findIndex((existing) => {
-        if (existing.platform !== p) return false;
-        const exKeys = this.getCanonicalKeys(p, existing);
-        return candidateKeys.some((k) => exKeys.includes(k));
-      });
+      const ex = candidateKeys.map((k) => leadByKey.get(k)).find(Boolean);
 
-      if (existingIdx === -1) {
-        this.data.leads.push(lead);
-        const seenSet = new Set(this.data.seenByPlatform[p] || []);
-        candidateKeys.forEach((k) => seenSet.add(k));
-        this.data.seenByPlatform[p] = Array.from(seenSet);
+      if (!ex) {
+        const record = { ...lead, platform: p };
+        this.data.leads.push(record);
+        const set = this._seenSet(p);
+        for (const k of candidateKeys) {
+          set.add(k);
+          leadByKey.set(k, record);
+        }
         addedLeads++;
       } else {
         // If colleague updated status beyond 'New', preserve their progress
-        const ex = this.data.leads[existingIdx];
         if (ex.status === 'New' && lead.status && lead.status !== 'New') {
           ex.status = lead.status;
         }
@@ -295,6 +333,8 @@ class ICPVault {
       }
     }
 
+    for (const p of SUPPORTED_PLATFORMS) this._commitSeen(p);
+
     this.save();
     return { addedLeads, totalLeads: this.data.leads.length };
   }
@@ -303,20 +343,16 @@ class ICPVault {
     const countsByPlatform = {};
     const seenCountsByPlatform = {};
     for (const p of SUPPORTED_PLATFORMS) {
-      countsByPlatform[p] = this.data.leads.filter((l) => l.platform === p).length;
-      seenCountsByPlatform[p] = (this.data.seenByPlatform[p] || []).length;
+      countsByPlatform[p] = 0;
+      seenCountsByPlatform[p] = this._seenSet(p).size;
     }
-    const countsByTier = {
-      icp1: this.data.leads.filter((l) => l.icpTier === 'icp1').length,
-      icp2: this.data.leads.filter((l) => l.icpTier === 'icp2').length,
-      icp3: this.data.leads.filter((l) => l.icpTier === 'icp3').length
-    };
-    const countsByStatus = {
-      New: this.data.leads.filter((l) => l.status === 'New').length,
-      Contacted: this.data.leads.filter((l) => l.status === 'Contacted').length,
-      Replied: this.data.leads.filter((l) => l.status === 'Replied').length,
-      Booked: this.data.leads.filter((l) => l.status === 'Booked').length
-    };
+    const countsByTier = { icp1: 0, icp2: 0, icp3: 0 };
+    const countsByStatus = { New: 0, Contacted: 0, Replied: 0, Booked: 0 };
+    for (const l of this.data.leads) {
+      if (l.platform in countsByPlatform) countsByPlatform[l.platform]++;
+      if (l.icpTier in countsByTier) countsByTier[l.icpTier]++;
+      if (l.status in countsByStatus) countsByStatus[l.status]++;
+    }
     return {
       totalLeads: this.data.leads.length,
       totalRuns: this.data.runs.length,

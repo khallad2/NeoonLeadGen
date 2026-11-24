@@ -59,6 +59,18 @@ npm start
   - *(Tip: If macOS shows an "unidentified developer" prompt the first time, right-click `start-mac.command` → click **Open** → click **Open**.)*
 - **On Windows:** Double-click **[`start-windows.bat`](./start-windows.bat)** in File Explorer.
 
+#### Method 3: Standalone Windows App (No Node.js Needed)
+Build a portable, double-clickable `NeoonLeadGen.exe` (Node runtime + UI embedded) from any Mac/Linux/Windows machine with Node 22+:
+```bash
+npm run build:win
+```
+- Output: `dist/NeoonLeadGen-Windows.zip` (~32 MB) containing `NeoonLeadGen.exe` + `START-HERE.txt`. Send the zip; the recipient extracts it and double-clicks the exe.
+- The runtime is the official `node.exe` for the same Node version as the builder, SHA-256 verified against nodejs.org.
+- The exe is unsigned, so SmartScreen shows **More info → Run anyway** on first launch.
+- Packaged data lives in `%APPDATA%\NeoonLeadGen\data\icp_vault.json` (override with `NEOON_DATA_DIR`), so replacing the exe keeps all leads.
+- Server binds to `127.0.0.1` only (no Windows Firewall prompt); launching the exe twice re-opens the running instance instead of starting a second server.
+- `npm run build:host` runs the same pipeline for your own OS, for local smoke-testing.
+
 ---
 
 ## 🎯 3. How to Use the Tool (Step-by-Step Workflow)

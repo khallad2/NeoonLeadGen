@@ -9,3 +9,7 @@ data/icp_vault.json
 data/*.tmp
 data/test_vault.json
 !data/.gitkeep
+
+# Packaged builds
+dist/
+.build-cache/

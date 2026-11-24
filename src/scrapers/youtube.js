@@ -497,11 +497,24 @@ async function discoverYouTubeICPs({ vault, count = 10, icpTier = 'all', customQ
     vault.advanceCursor('youtube', 1);
 
     const rawCandidates = await searchYouTubeInnerTube(qObj.q);
-    for (const raw of rawCandidates) {
+
+    // Pre-filter unseen candidates, then enrich them concurrently (instead of one-by-one)
+    // so a run costs ~1 channel round-trip per query rather than ~10 sequential ones.
+    const batchSeen = new Set();
+    const unseen = rawCandidates.filter((raw) => {
+      if (!canAccept(raw)) return false;
+      const keys = vault.getCanonicalKeys('youtube', raw);
+      if (keys.some((k) => batchSeen.has(k))) return false;
+      keys.forEach((k) => batchSeen.add(k));
+      return true;
+    });
+    const needed = count - results.length;
+    const toEnrich = unseen.slice(0, Math.min(unseen.length, needed + 6));
+    await Promise.all(toEnrich.map((raw) => enrichYouTubeChannel(raw)));
+
+    for (const raw of toEnrich) {
       if (results.length >= count) break;
       if (!canAccept(raw)) continue;
-
-      await enrichYouTubeChannel(raw);
 
       // Disqualify massive mega-channels (> 750K subs) since ICP 3 targets 10k-50k & agile teams
       if (raw.subscribersNum > 750_000) continue;
